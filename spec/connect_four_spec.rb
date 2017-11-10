@@ -3,8 +3,8 @@ require "connect_four"
 describe ConnectFour do
   context 'before any moves' do
     it 'is empty' do
-      (0...ConnectFour::NUM_COLS).each do |column_index|
-        expect(subject.get_column(column_index).length).to eql(0)
+      subject.columns.each do |column|
+        expect(column.length).to eql(0)
       end
     end
   end
@@ -13,11 +13,11 @@ describe ConnectFour do
     context 'after first valid move' do
       let!(:first_player) { subject.get_current_player }
       let!(:column_before_move) do
-        Marshal.load Marshal::dump(subject.get_column(column_index))
+        Marshal.load Marshal::dump(subject.columns[column_index])
       end
 
-      let(:column_index) { 4 }
-      let(:column) { subject.get_column(column_index) }
+      let(:column_index) { 2 }
+      let(:column) { subject.columns[column_index] }
 
       before { subject.move(column_index) }
       
@@ -51,12 +51,35 @@ describe ConnectFour do
         end
       end
     end
+
+    # context 'when column is invalid' do
+    # end
+
+    # context 'when column is full' do
+    # end
   end
 
   describe "#connect_four?" do
+    context 'when empty' do
+      it 'returns false' do
+        subject.columns.each_with_index do |column, column_index|
+          expect(subject.connect_four?(column_index)).to be false
+        end
+      end
+    end
+
     context 'when four-of-a-kind in a column' do
+      let(:column_index) { 5 }
+
+      before do
+        4.times do |i|
+          subject.move(i)
+          subject.move(column_index)
+        end
+      end
+
       it 'returns true' do
-        expect(subject.connect_four?).to be true
+        expect(subject.connect_four?(column_index)).to be true
       end
     end
   end
