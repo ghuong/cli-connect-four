@@ -11,6 +11,9 @@ class ConnectFour
   end
 
   def move(column_index)
+    if not (0...NUM_COLS).cover? column_index then return false end
+    if columns[column_index].length >= MAX_HEIGHT then return false end
+
     columns[column_index] << get_current_player
     @turns += 1
   end

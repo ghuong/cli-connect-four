@@ -52,11 +52,25 @@ describe ConnectFour do
       end
     end
 
-    # context 'when column is invalid' do
-    # end
+    context 'when column index is negative' do
+      it 'returns false' do
+        expect(subject.move(-1)).to be false
+      end
+    end
 
-    # context 'when column is full' do
-    # end
+    context 'when column index out of bounds' do
+      it 'returns false' do
+        expect(subject.move(ConnectFour::NUM_COLS)).to be false
+      end
+    end
+
+    context 'when column is full' do
+      before { ConnectFour::MAX_HEIGHT.times { subject.move(0) } }
+
+      it 'returns false' do
+        expect(subject.move(0)).to be false
+      end
+    end
   end
 
   describe "#connect_four?" do
