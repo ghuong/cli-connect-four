@@ -82,6 +82,21 @@ describe ConnectFour do
       end
     end
 
+    context "when only three-of-a-kind in a column" do
+      let(:column_index) { 5 }
+
+      before do
+        3.times do |i|
+          subject.move(i)
+          subject.move(column_index)
+        end
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(column_index)).to be false
+      end
+    end
+
     context 'when four-of-a-kind in a column' do
       let(:column_index) { 5 }
 
@@ -94,6 +109,60 @@ describe ConnectFour do
 
       it 'returns true' do
         expect(subject.connect_four?(column_index)).to be true
+      end
+    end
+
+    context 'when five-of-a-kind in a column' do
+      let(:column_index) { 5 }
+
+      before do
+        5.times do |i|
+          subject.move(i)
+          subject.move(column_index)
+        end
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(column_index)).to be true
+      end
+    end
+
+    context "when three-of-a-kind in a row" do
+      before do
+        3.times do |i|
+          subject.move(i + 1)
+          subject.move(0)
+        end
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(2)).to be false  
+      end
+    end
+
+    context "when four-of-a-kind in a row" do
+      before do
+        4.times do |i|
+          subject.move(i + 1)
+          subject.move(0)
+        end
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(2)).to be true  
+      end
+    end
+
+    context "when five-of-a-kind in a row" do
+      before do
+        5.times do |i|
+          subject.move(i + 1)
+          subject.move(0)
+        end
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(3)).to be true  
       end
     end
   end
