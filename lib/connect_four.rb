@@ -23,43 +23,75 @@ class ConnectFour
   end
 
   def connect_four?(last_played_column_index)
-    return (connect_four_vertical?(last_played_column_index) or 
-      connect_four_horizontal?(last_played_column_index) or 
-      connect_four_diagonally_down?(last_played_column_index) or
-      connect_four_diagonally_up?(last_played_column_index))
-  end
+    if not is_valid_column? last_played_column_index then raise "Invalid column" end
 
-  def connect_four_vertical?(last_played_column_index)
-    block = @columns[last_played_column_index][-4..-1]
-    if block.nil? then return false end
-    return block.all? { |player| player == block[-1] }
-  end
-
-  def connect_four_horizontal?(last_played_column_index)
     height = @columns[last_played_column_index].length
-    return false if height <= 0
-    connected = 1
-    check_row = Proc.new do |i|
-      ith_column_index = last_played_column_index + i
-      next if not is_valid_column? ith_column_index
-      ith_column = @columns[ith_column_index]
-      next if ith_column.length < height or
-        ith_column[height] != @columns[last_played_column_index][height]
-      connected += 1
+    return (connect_four_vertical?(last_played_column_index, height) or 
+      connect_four_horizontal?(last_played_column_index, height) or 
+      connect_four_diagonally_down?(last_played_column_index, height) or
+      connect_four_diagonally_up?(last_played_column_index, height))
+  end
+
+  # Compares the last played piece to other pieces (specified with the coordinates
+  # in 'columns' and 'heights'), and returns the number of matching pieces. The
+  # comparison is short-circuited as soon as one piece fails to match
+  def connect_four_helper(last_played_column_index, column_indices, heights)
+    last_played_height = @columns[last_played_column_index].length
+    if column_indices.length != heights.length then raise "Invalid input" end
+
+    matches = 0
+    column_indices.each_with_index do |column_index, heights_array_index|
+      break if not pieces_match?(last_played_column_index, last_played_height, 
+                                 column_index, heights[heights_array_index])
+      matches += 1
     end
-    # check for matching pieces to the left
-    -1.downto(-3).each(&check_row)
-    # check for matching pieces to the right
-    1.upto(3).each(&check_row)
-    return connected >= 4
+    return matches
   end
 
-  def connect_four_diagonally_down?(last_played_column_index)
-    false
+  def connect_four_vertical?(last_played_column_index, height)
+    columns = [last_played_column_index, last_played_column_index, last_played_column_index]
+    heights = [height - 1, height - 2, height - 3]
+    connect_four_helper(last_played_column_index, columns, heights) >= 3
   end
 
-  def connect_four_diagonally_up?(last_played_column_index)
-    false
+  def connect_four_horizontal?(last_played_column_index, height)
+    heights = [height, height, height]
+    left_columns = [last_played_column_index - 1, last_played_column_index - 2, last_played_column_index - 3]
+    right_columns = [last_played_column_index + 1, last_played_column_index + 2, last_played_column_index + 3]
+
+    connect_four_helper(last_played_column_index, left_columns, heights) +
+    connect_four_helper(last_played_column_index, right_columns, heights) >= 3
+  end
+
+  def connect_four_diagonally_down?(last_played_column_index, height)
+    left_heights = [height + 1, height + 2, height + 3]
+    left_columns = [last_played_column_index - 1, last_played_column_index - 2, last_played_column_index - 3]
+
+    right_heights = [height - 1, height - 2, height - 3]
+    right_columns = [last_played_column_index + 1, last_played_column_index + 2, last_played_column_index + 3]
+
+    connect_four_helper(last_played_column_index, left_columns, left_heights) +
+    connect_four_helper(last_played_column_index, right_columns, right_heights) >= 3
+  end
+
+  def connect_four_diagonally_up?(last_played_column_index, height)
+    left_heights = [height - 1, height - 2, height - 3]
+    left_columns = [last_played_column_index - 1, last_played_column_index - 2, last_played_column_index - 3]
+
+    right_heights = [height + 1, height + 2, height + 3]
+    right_columns = [last_played_column_index + 1, last_played_column_index + 2, last_played_column_index + 3]
+
+    connect_four_helper(last_played_column_index, left_columns, left_heights) +
+    connect_four_helper(last_played_column_index, right_columns, right_heights) >= 3
+  end
+
+  # Returns true iff the pieces of the given coordinates match
+  # If either piece does not exist, it returns false 
+  def pieces_match?(this_column, this_height, that_column, that_height)
+    this_height > 0 and that_height > 0 and
+    is_valid_column?(this_column) and is_valid_column?(that_column) and
+    @columns[this_column].length >= this_height and @columns[that_column].length >= that_height and
+    @columns[this_column][this_height - 1] == @columns[that_column][that_height - 1]
   end
 
   def is_valid_column?(column_index)

@@ -127,6 +127,23 @@ describe ConnectFour do
       end
     end
 
+    context 'when column is blocked' do
+      let(:column_index) { 5 }
+
+      before do
+        subject.move(column_index) # P1
+        subject.move(column_index) # P2
+        3.times do |i|
+          subject.move(column_index) # P1
+          subject.move(i) # P2
+        end
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(column_index)).to be false
+      end
+    end
+
     context "when three-of-a-kind in a row" do
       before do
         3.times do |i|
@@ -165,5 +182,227 @@ describe ConnectFour do
         expect(subject.connect_four?(3)).to be true  
       end
     end
+
+    context "when row is incomplete or blocked" do
+      before do
+        subject.move(0) # P1
+        subject.move(1) # P2
+        subject.move(2) # P1
+        subject.move(1) # P2
+        subject.move(3) # P1
+        subject.move(1) # P2
+        subject.move(4) # P1
+        subject.move(1) # P2
+        subject.move(6) # P1
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(3)).to be false  
+      end
+    end
+
+    context "when three-of-a-kind in a downwards diagonal" do
+      before do
+        # column 4
+        subject.move(4) # P1, first in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 1
+        subject.move(3) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(1) # P2, col 1 has 1
+        subject.move(2) # P1, third in diagonal
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(3)).to be false  
+      end
+    end
+
+    context "when four-of-a-kind in a downwards diagonal" do
+      before do
+        # column 4
+        subject.move(4) # P1, first in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 1
+        subject.move(3) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(1) # P2, col 1 has 1
+        subject.move(2) # P1, third in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 2
+        subject.move(1) # P1, col 1 has 3
+        subject.move(0) # P2, col 0 has 1
+        subject.move(1) # P1, fourth in diagonal
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(3)).to be true  
+      end
+    end
+
+    context "when five-of-a-kind in a downwards diagonal" do
+      before do
+        # column 4
+        subject.move(4) # P1, first in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 1
+        subject.move(3) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(1) # P2, col 1 has 1
+        subject.move(2) # P1, third in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 2
+        subject.move(1) # P1, col 1 has 3
+        subject.move(0) # P2, col 0 has 1
+        subject.move(1) # P1, fourth in diagonal
+        # column 0
+        subject.move(0) # P2, col 0 has 2
+        subject.move(0) # P1, col 0 has 3
+        subject.move(0) # P2, col 0 has 4
+        subject.move(0) # P1, fifth in diagonal
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(2)).to be true  
+      end
+    end
+
+    context "when downwards diagonal is blocked" do
+      before do
+        # column 4
+        subject.move(4) # P1, first in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 1
+        subject.move(3) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(1) # P2, col 1 has 1
+        subject.move(2) # P1, third in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 2
+        subject.move(1) # P1, col 1 has 3
+        subject.move(1) # P2, col 1 BLOCKED!
+        # column 0
+        subject.move(0) # P1, col 0 has 1
+        subject.move(0) # P2, col 0 has 2
+        subject.move(0) # P1, col 0 has 3
+        subject.move(0) # P2, col 0 has 4
+        subject.move(0) # P1
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(2)).to be false  
+      end
+    end
+
+    context "when three-of-a-kind in an upwards diagonal" do
+      before do
+        # column 0
+        subject.move(0) # P1, first in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 1
+        subject.move(1) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(3) # P2, col 3 has 1
+        subject.move(2) # P1, third in diagonal
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(1)).to be false  
+      end
+    end
+
+    context "when four-of-a-kind in an upwards diagonal" do
+      before do
+        # column 0
+        subject.move(0) # P1, first in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 1
+        subject.move(1) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(3) # P2, col 3 has 1
+        subject.move(2) # P1, third in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 2
+        subject.move(3) # P1, col 3 has 3
+        subject.move(4) # P2, col 4 has 1
+        subject.move(3) # P1, fourth in diagonal
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(2)).to be true  
+      end
+    end
+
+    context "when five-of-a-kind in an upwards diagonal" do
+      before do
+        # column 0
+        subject.move(0) # P1, first in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 1
+        subject.move(1) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(3) # P2, col 3 has 1
+        subject.move(2) # P1, third in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 2
+        subject.move(3) # P1, col 3 has 3
+        subject.move(4) # P2, col 4 has 1
+        subject.move(3) # P1, fourth in diagonal
+        # column 4
+        subject.move(4) # P2, col 4 has 2
+        subject.move(4) # P1, col 4 has 3
+        subject.move(4) # P2, col 4 has 4
+        subject.move(4) # P1, fifth in diagonal
+      end
+
+      it 'returns true' do
+        expect(subject.connect_four?(2)).to be true  
+      end
+    end
+
+    context "when upwards diagonal is incomplete" do
+      before do
+        # column 0
+        subject.move(0) # P1, first in diagonal
+        # column 1
+        subject.move(1) # P2, col 1 has 1
+        subject.move(1) # P1, second in diagonal
+        # column 2
+        subject.move(2) # P2, col 2 has 1
+        subject.move(2) # P1, col 2 has 2
+        subject.move(3) # P2, col 3 has 1
+        subject.move(2) # P1, third in diagonal
+        # column 3
+        subject.move(3) # P2, col 3 has 2
+        subject.move(3) # P1, col 3 has 3
+        subject.move(3) # P2, col 3 BLOCKED
+        # column 4
+        subject.move(4) # P1, col 4 has 1
+        subject.move(4) # P2, col 4 has 2
+        subject.move(4) # P1, col 4 has 3
+        subject.move(4) # P2, col 4 has 4
+        subject.move(4) # P1
+      end
+
+      it 'returns false' do
+        expect(subject.connect_four?(2)).to be false  
+      end
+    end
   end
+
+
 end
