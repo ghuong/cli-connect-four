@@ -1,6 +1,9 @@
 class ConnectFour
   MAX_HEIGHT = 6.freeze
   NUM_COLS = 7.freeze
+  EMPTY_SPACE = "\u25EF".encode("utf-8")
+  PLAYER_1_PIECE = "\u25C9".encode("utf-8")
+  PLAYER_2_PIECE = "\u25CE".encode("utf-8")
 
   attr_reader :columns
 
@@ -10,12 +13,77 @@ class ConnectFour
     NUM_COLS.times { @columns << [] }
   end
 
+  def play
+    loop do
+      display_board
+      column_index = do_turn
+      if connect_four?(column_index)
+        display_board
+        puts "Game Over!"
+        break
+      elsif all_full?
+        display_board
+        puts "It's a tie!"
+        break
+      end
+    end
+  end
+
+  def do_turn
+    print "Player #{get_current_player}'s turn. Put #{get_player_piece}  in column: "
+    loop do
+      column_index = gets.chomp.to_i
+      return column_index if move(column_index)
+      print "Please try again: "
+    end
+  end
+
   def move(column_index)
     if not is_valid_column? column_index then return false end
-    if columns[column_index].length >= MAX_HEIGHT then return false end
+    if @columns[column_index].length >= MAX_HEIGHT then return false end
 
-    columns[column_index] << get_current_player
+    @columns[column_index] << get_current_player
     @turns += 1
+    return true
+  end
+
+  def display_board
+    print "     "
+    NUM_COLS.times { |i| print "#{i}   " }
+    print "\n"
+
+    print "  |--"
+    NUM_COLS.times { print "----" }
+    print "|\n"
+    (MAX_HEIGHT).downto(1).each do |height|
+      print "  |  "
+      (0...NUM_COLS).each do |column_index|
+        print piece_to_string(column_index, height), "   "
+      end
+      print "|\n"
+    end
+    print "  |__"
+    NUM_COLS.times { print "____" }
+    print "|\n\n"
+  end
+
+  def piece_to_string(column_index, height)
+    if @columns[column_index].length < height or height == 0
+      EMPTY_SPACE
+    else
+      get_player_piece(@columns[column_index][height - 1])
+    end
+  end
+
+  def get_player_piece(player = nil)
+    if player.nil? then player = get_current_player end
+
+    case player
+    when 1
+      PLAYER_1_PIECE
+    when 2
+      PLAYER_2_PIECE
+    end
   end
 
   def get_current_player
@@ -23,7 +91,7 @@ class ConnectFour
   end
 
   def connect_four?(last_played_column_index)
-    if not is_valid_column? last_played_column_index then raise "Invalid column" end
+    if not is_valid_column?(last_played_column_index) then raise "Invalid column: #{last_played_column_index}" end
 
     height = @columns[last_played_column_index].length
     return (connect_four_vertical?(last_played_column_index, height) or 
@@ -96,5 +164,9 @@ class ConnectFour
 
   def is_valid_column?(column_index)
     (0...NUM_COLS).cover? column_index
+  end
+
+  def all_full?
+    @columns.all? { |column| column.length >= MAX_HEIGHT }
   end
 end

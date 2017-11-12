@@ -403,6 +403,4 @@ describe ConnectFour do
       end
     end
   end
-
-
 end
